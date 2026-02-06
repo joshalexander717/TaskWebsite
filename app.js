@@ -179,6 +179,7 @@ function setupAuth() {
           renderTasks();
           isApplyingRemote = false;
         } else {
+          // First-time sign-in: seed remote from current local state
           tasksByDate = loadLocalTasks();
           tags = ensureDefaultTag(loadLocalTags());
           syncTagsFromTasks();
@@ -193,9 +194,11 @@ function setupAuth() {
       });
     } else {
       remoteStateRef = null;
-      tasksByDate = loadLocalTasks();
-      tags = ensureDefaultTag(loadLocalTags());
-      syncTagsFromTasks();
+      // Clear all info on sign out
+      tasksByDate = {};
+      tags = [DEFAULT_TAG];
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TAGS_KEY);
       renderTagOptions();
       renderTagManager();
       renderTagViewTabs();
