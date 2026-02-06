@@ -14,9 +14,13 @@
       <div>
         <img class="logo" src="images/TaskyLogo.png" alt="Tasky" />
       </div>
-      <button id="tagManagerToggle" class="gear-button" aria-label="Open tag manager">
-        <i class="fa-solid fa-gear" aria-hidden="true"></i>
-      </button>
+      <div class="header-actions">
+        <button id="signInBtn" class="task-action auth-button header-auth" type="button">Sign in</button>
+        <button id="signOutBtn" class="task-action auth-button header-auth" type="button">Sign out</button>
+        <button id="tagManagerToggle" class="gear-button" aria-label="Open tag manager">
+          <i class="fa-solid fa-gear" aria-hidden="true"></i>
+        </button>
+      </div>
       <div id="tagManagerOverlay" class="tag-manager-overlay" aria-hidden="true">
         <div class="settings-menu">
           <div class="settings-menu-title">Settings</div>
@@ -27,8 +31,6 @@
           </label>
           <div class="auth-row">
             <div id="userLabel" class="user-label">Not signed in</div>
-            <button id="signInBtn" class="task-action auth-button" type="button">Sign in</button>
-            <button id="signOutBtn" class="task-action auth-button" type="button">Sign out</button>
           </div>
           <div class="tag-manager-container">
             <div class="tag-manager">

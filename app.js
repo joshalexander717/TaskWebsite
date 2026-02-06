@@ -134,6 +134,8 @@ function saveLocalTags() {
 }
 
 function setupAuth() {
+  if (signInBtn) signInBtn.style.display = 'inline-flex';
+  if (signOutBtn) signOutBtn.style.display = 'none';
   if (signInBtn) {
     signInBtn.addEventListener('click', async () => {
       try {
@@ -151,6 +153,7 @@ function setupAuth() {
 
   onAuthStateChanged(auth, (user) => {
     currentUser = user;
+    document.body.classList.toggle('signed-out', !user);
     if (userLabel) {
       userLabel.textContent = user ? `Signed in as ${user.displayName || user.email || 'User'}` : 'Not signed in';
     }

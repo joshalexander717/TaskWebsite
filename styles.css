@@ -75,6 +75,58 @@ body.dark {
   position: relative;
 }
 
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-auth {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--track);
+  font-size: 0.8rem;
+}
+
+.header-auth:hover {
+  background: #f6a15b;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+body.signed-out .layout,
+body.signed-out .tag-manager-section,
+body.signed-out .day-panel-backdrop,
+body.signed-out .tag-manager-overlay {
+  display: none;
+}
+
+body.signed-out .app-header {
+  min-height: 70vh;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+body.signed-out .header-actions {
+  order: 2;
+}
+
+body.signed-out .gear-button,
+body.signed-out #signOutBtn {
+  display: none !important;
+}
+
+body.signed-out #signInBtn {
+  display: inline-flex !important;
+}
+
+body.signed-out .settings-menu {
+  display: none;
+}
+
 .gear-button {
   width: 40px;
   height: 40px;
