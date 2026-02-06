@@ -212,12 +212,11 @@ getRedirectResult(auth).catch(() => {
 
 function saveRemoteState() {
   if (!currentUser || !remoteStateRef || isApplyingRemote) return;
-  const payload = {
-    tasksByDate,
-    tags,
-    updatedAt: serverTimestamp(),
-  };
-  setDoc(remoteStateRef, payload, { merge: true });
+  const payload = sanitizeForFirestore();
+  setDoc(remoteStateRef, payload, { merge: true }).catch((err) => {
+    console.error('Sync failed', err);
+    showToast('Sync failed. Check Firebase settings.');
+  });
 }
 
 function scheduleRemoteSave() {
@@ -229,6 +228,30 @@ function scheduleRemoteSave() {
     pendingSave = null;
     saveRemoteState();
   }, 300);
+}
+
+function sanitizeForFirestore() {
+  const cleanedTasksByDate = {};
+  Object.keys(tasksByDate).forEach((dateKey) => {
+    const data = getDayData(dateKey);
+    const cleanedTasks = data.tasks.map((task) => ({
+      text: String(task.text || '').trim(),
+      done: Boolean(task.done),
+      tag: task.tag || DEFAULT_TAG,
+    })).filter((task) => task.text);
+    const cleanedEvents = data.events.map((event) => ({
+      text: String(event.text || '').trim(),
+      time: event.time || '',
+    })).filter((event) => event.text);
+    cleanedTasksByDate[dateKey] = { tasks: cleanedTasks, events: cleanedEvents };
+  });
+
+  const cleanedTags = ensureDefaultTag((tags || []).filter(Boolean));
+  return {
+    tasksByDate: cleanedTasksByDate,
+    tags: cleanedTags,
+    updatedAt: serverTimestamp(),
+  };
 }
 
 function setSelectedProgress(percent) {
