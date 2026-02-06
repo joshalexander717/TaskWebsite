@@ -1345,7 +1345,7 @@ body.dark .day-panel {
   font-weight: 700;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .auth-button:hover {
