@@ -1240,6 +1240,34 @@ body.dark .day-panel {
   color: var(--muted);
 }
 
+.auth-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.user-label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  flex: 1 1 100%;
+}
+
+.auth-button {
+  width: auto;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--track);
+  font-size: 0.8rem;
+}
+
+.auth-button:hover {
+  background: #f6a15b;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 .settings-toggle {
   display: flex;
   align-items: center;

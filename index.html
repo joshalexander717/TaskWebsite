@@ -25,6 +25,11 @@
             <input id="darkModeToggle" type="checkbox" />
             <span class="toggle-pill" aria-hidden="true"></span>
           </label>
+          <div class="auth-row">
+            <div id="userLabel" class="user-label">Not signed in</div>
+            <button id="signInBtn" class="task-action auth-button" type="button">Sign in</button>
+            <button id="signOutBtn" class="task-action auth-button" type="button">Sign out</button>
+          </div>
           <div class="tag-manager-container">
             <div class="tag-manager">
               <div class="tag-manager-title">Tags</div>
@@ -122,6 +127,6 @@
     <div id="dayPanelBackdrop" class="day-panel-backdrop" aria-hidden="true"></div>
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>

@@ -1,3 +1,21 @@
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js';
+import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBt9xX4tJDSHAE8rrG1BdyCgNqN2OwO2_Qg",
+  authDomain: "task-website-d5b99.firebaseapp.com",
+  projectId: "task-website-d5b99",
+  storageBucket: "task-website-d5b99.firebasestorage.app",
+  messagingSenderId: "1093815548138",
+  appId: "1:1093815548138:web:4a8e6442cf23a827837f93"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const provider = new GoogleAuthProvider();
+
 const calendarA = document.getElementById('calendarA');
 const calendarB = document.getElementById('calendarB');
 let activeCalendar = calendarA;
@@ -24,6 +42,9 @@ const tagViewTabs = document.getElementById('tagViewTabs');
 const tagManagerToggle = document.getElementById('tagManagerToggle');
 const tagManagerOverlay = document.getElementById('tagManagerOverlay');
 const darkModeToggle = document.getElementById('darkModeToggle');
+const signInBtn = document.getElementById('signInBtn');
+const signOutBtn = document.getElementById('signOutBtn');
+const userLabel = document.getElementById('userLabel');
 const dayPanel = document.querySelector('.day-panel');
 const dayPanelBackdrop = document.getElementById('dayPanelBackdrop');
 const closeDayPanelBtn = document.getElementById('closeDayPanel');
@@ -37,13 +58,19 @@ const THEME_KEY = 'task-calendar-theme';
 
 let viewDate = new Date();
 let selectedDate = null;
-let tasksByDate = loadTasks();
-let tags = loadTags();
+let tasksByDate = loadLocalTasks();
+let tags = loadLocalTags();
 let selectedTagView = DEFAULT_TAG;
 const completionState = {};
+let currentUser = null;
+let remoteStateRef = null;
+let unsubscribeState = null;
+let pendingSave = null;
+let isApplyingRemote = false;
 
 syncTagsFromTasks();
 setupThemeToggle();
+setupAuth();
 renderTagOptions();
 renderTagManager();
 renderTagView();
@@ -51,7 +78,7 @@ renderTagViewTabs();
 setupTagManagerOverlay();
 setupDayPanelSheet();
 
-function loadTasks() {
+function loadLocalTasks() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
   } catch (err) {
@@ -59,8 +86,13 @@ function loadTasks() {
   }
 }
 
-function saveTasks() {
+function saveLocalTasks() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasksByDate));
+}
+
+function saveTasks() {
+  saveLocalTasks();
+  scheduleRemoteSave();
 }
 
 function getDayData(dateKey) {
@@ -85,7 +117,7 @@ function setDayData(dateKey, data) {
   saveTasks();
 }
 
-function loadTags() {
+function loadLocalTags() {
   try {
     const stored = JSON.parse(localStorage.getItem(TAGS_KEY));
     if (Array.isArray(stored) && stored.length) {
@@ -95,6 +127,100 @@ function loadTags() {
     // ignore
   }
   return [DEFAULT_TAG];
+}
+
+function saveLocalTags() {
+  localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
+}
+
+function setupAuth() {
+  if (signInBtn) {
+    signInBtn.addEventListener('click', async () => {
+      await signInWithPopup(auth, provider);
+    });
+  }
+  if (signOutBtn) {
+    signOutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+    });
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (userLabel) {
+      userLabel.textContent = user ? `Signed in as ${user.displayName || user.email || 'User'}` : 'Not signed in';
+    }
+    if (signInBtn) signInBtn.style.display = user ? 'none' : 'inline-flex';
+    if (signOutBtn) signOutBtn.style.display = user ? 'inline-flex' : 'none';
+
+    if (unsubscribeState) {
+      unsubscribeState();
+      unsubscribeState = null;
+    }
+
+    if (user) {
+      remoteStateRef = doc(db, 'users', user.uid, 'app', 'state');
+      unsubscribeState = onSnapshot(remoteStateRef, (snap) => {
+        const data = snap.data();
+        if (data && data.tasksByDate) {
+          isApplyingRemote = true;
+          tasksByDate = data.tasksByDate || {};
+          tags = ensureDefaultTag(Array.isArray(data.tags) ? data.tags : []);
+          syncTagsFromTasks();
+          renderTagOptions();
+          renderTagManager();
+          renderTagViewTabs();
+          renderTagView();
+          renderCalendar();
+          renderTasks();
+          isApplyingRemote = false;
+        } else {
+          tasksByDate = loadLocalTasks();
+          tags = ensureDefaultTag(loadLocalTags());
+          syncTagsFromTasks();
+          saveRemoteState();
+          renderTagOptions();
+          renderTagManager();
+          renderTagViewTabs();
+          renderTagView();
+          renderCalendar();
+          renderTasks();
+        }
+      });
+    } else {
+      remoteStateRef = null;
+      tasksByDate = loadLocalTasks();
+      tags = ensureDefaultTag(loadLocalTags());
+      syncTagsFromTasks();
+      renderTagOptions();
+      renderTagManager();
+      renderTagViewTabs();
+      renderTagView();
+      renderCalendar();
+      renderTasks();
+    }
+  });
+}
+
+function saveRemoteState() {
+  if (!currentUser || !remoteStateRef || isApplyingRemote) return;
+  const payload = {
+    tasksByDate,
+    tags,
+    updatedAt: serverTimestamp(),
+  };
+  setDoc(remoteStateRef, payload, { merge: true });
+}
+
+function scheduleRemoteSave() {
+  if (!currentUser || isApplyingRemote) return;
+  if (pendingSave) {
+    clearTimeout(pendingSave);
+  }
+  pendingSave = setTimeout(() => {
+    pendingSave = null;
+    saveRemoteState();
+  }, 300);
 }
 
 function setSelectedProgress(percent) {
@@ -171,7 +297,8 @@ function setupThemeToggle() {
 }
 
 function saveTags() {
-  localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
+  saveLocalTags();
+  scheduleRemoteSave();
 }
 
 function ensureDefaultTag(list) {
