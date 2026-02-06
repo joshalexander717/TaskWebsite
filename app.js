@@ -1,5 +1,5 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js';
 import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js';
 
 const firebaseConfig = {
@@ -136,7 +136,11 @@ function saveLocalTags() {
 function setupAuth() {
   if (signInBtn) {
     signInBtn.addEventListener('click', async () => {
-      await signInWithPopup(auth, provider);
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        await signInWithRedirect(auth, provider);
+      }
     });
   }
   if (signOutBtn) {
@@ -201,6 +205,10 @@ function setupAuth() {
     }
   });
 }
+
+getRedirectResult(auth).catch(() => {
+  // ignore: redirect flow fallback for popup blockers
+});
 
 function saveRemoteState() {
   if (!currentUser || !remoteStateRef || isApplyingRemote) return;
