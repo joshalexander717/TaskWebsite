@@ -103,7 +103,7 @@ body.signed-out .tag-manager-overlay {
 }
 
 body.signed-out .app-header {
-  min-height: 70vh;
+  min-height: 100vh;
   justify-content: center;
   align-items: center;
   flex-direction: column;
@@ -114,14 +114,15 @@ body.signed-out .header-actions {
   order: 2;
 }
 
-body.signed-out .signed-out-footer {
-  order: 3;
-  font-size: 0.9rem;
-  color: var(--muted);
+.signed-out-footer {
+  display: none;
 }
 
-body:not(.signed-out) .signed-out-footer {
-  display: none;
+body.signed-out .signed-out-footer {
+  display: block;
+  order: 3;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--bg) 40%, var(--ink) 60%);
 }
 
 body.signed-out .gear-button,
@@ -135,6 +136,10 @@ body.signed-out #signInBtn {
 
 body.signed-out .settings-menu {
   display: none;
+}
+
+body.signed-out {
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {
@@ -1400,6 +1405,10 @@ body.dark .day-panel {
     width: 100%;
   }
 
+  .header-actions {
+    flex-wrap: nowrap;
+  }
+
   .gear-button {
     width: 34px;
     height: 34px;
@@ -1424,6 +1433,13 @@ body.dark .day-panel {
 
   .day-panel-close {
     display: inline-flex;
+  }
+
+  body.signed-out .app-header {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 }
 
