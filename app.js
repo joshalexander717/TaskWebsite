@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signO
 import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBt9xX4tJDSHAE8rrG1BdyCgNqN2OwO2_Qg",
+  apiKey: "AIzaSyBt9xX4tJDSHAE8rrG1BdyCgNq2OwO2_Qg",
   authDomain: "task-website-d5b99.firebaseapp.com",
   projectId: "task-website-d5b99",
   storageBucket: "task-website-d5b99.firebasestorage.app",
