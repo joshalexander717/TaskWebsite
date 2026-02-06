@@ -87,6 +87,10 @@ body.dark {
   border-radius: 999px;
   background: var(--track);
   font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .header-auth:hover {
@@ -1470,6 +1474,19 @@ body.dark .day-panel {
   .day-meta {
     position: relative;
     z-index: 1;
+  }
+
+  .day-meta {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    margin-top: 0;
+    text-align: right;
+    z-index: 2;
+  }
+
+  .day-meta .meta-icon {
+    justify-content: flex-end;
   }
 
   .progress-track {
