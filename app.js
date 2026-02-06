@@ -194,9 +194,17 @@ function setupAuth() {
       });
     } else {
       remoteStateRef = null;
+      if (pendingSave) {
+        clearTimeout(pendingSave);
+        pendingSave = null;
+      }
+      isApplyingRemote = true;
       // Clear all info on sign out
       tasksByDate = {};
       tags = [DEFAULT_TAG];
+      selectedTagView = DEFAULT_TAG;
+      selectedDate = null;
+      Object.keys(completionState).forEach((key) => delete completionState[key]);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(TAGS_KEY);
       renderTagOptions();
@@ -205,6 +213,7 @@ function setupAuth() {
       renderTagView();
       renderCalendar();
       renderTasks();
+      isApplyingRemote = false;
     }
   });
 }
