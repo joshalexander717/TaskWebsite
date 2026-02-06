@@ -114,6 +114,16 @@ body.signed-out .header-actions {
   order: 2;
 }
 
+body.signed-out .signed-out-footer {
+  order: 3;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+body:not(.signed-out) .signed-out-footer {
+  display: none;
+}
+
 body.signed-out .gear-button,
 body.signed-out #signOutBtn {
   display: none !important;
@@ -125,6 +135,13 @@ body.signed-out #signInBtn {
 
 body.signed-out .settings-menu {
   display: none;
+}
+
+@media (max-width: 900px) {
+  body.signed-out .app-header {
+    min-height: 100vh;
+    padding-top: 20vh;
+  }
 }
 
 .gear-button {
