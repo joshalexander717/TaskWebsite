@@ -179,7 +179,7 @@ function setupAuth() {
           renderTagViewTabs();
           renderTagView();
           renderCalendar();
-          renderTasks();
+          selectDate(new Date());
           isApplyingRemote = false;
         } else {
           // First-time sign-in: seed remote from current local state
@@ -192,9 +192,10 @@ function setupAuth() {
           renderTagViewTabs();
           renderTagView();
           renderCalendar();
-          renderTasks();
+          selectDate(new Date());
         }
       });
+      selectDate(new Date());
     } else {
       remoteStateRef = null;
       if (pendingSave) {
