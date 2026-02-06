@@ -178,8 +178,7 @@ function setupAuth() {
           renderTagManager();
           renderTagViewTabs();
           renderTagView();
-          renderCalendar();
-          selectDate(new Date());
+          selectToday();
           isApplyingRemote = false;
         } else {
           // First-time sign-in: seed remote from current local state
@@ -191,11 +190,10 @@ function setupAuth() {
           renderTagManager();
           renderTagViewTabs();
           renderTagView();
-          renderCalendar();
-          selectDate(new Date());
+          selectToday();
         }
       });
-      selectDate(new Date());
+      selectToday();
     } else {
       remoteStateRef = null;
       if (pendingSave) {
@@ -1567,7 +1565,14 @@ nextMonthBtn.addEventListener('click', () => {
   animateCalendar('next', nextDate);
 });
 
-selectDate(new Date());
+selectToday();
+
+function selectToday() {
+  const today = new Date();
+  viewDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  renderCalendar();
+  selectDate(today);
+}
 calendarB.classList.add('hidden');
 function setupTagManagerOverlay() {
   if (!tagManagerToggle || !tagManagerOverlay) return;
