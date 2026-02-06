@@ -110,6 +110,10 @@ body.signed-out .app-header {
   gap: 16px;
 }
 
+body.signed-out .logo {
+  height: 140px;
+}
+
 body.signed-out .header-actions {
   order: 2;
 }
@@ -123,6 +127,10 @@ body.signed-out .signed-out-footer {
   order: 3;
   font-size: 0.9rem;
   color: color-mix(in srgb, var(--bg) 40%, var(--ink) 60%);
+}
+
+body:not(.signed-out) .signed-out-footer {
+  display: none !important;
 }
 
 body.signed-out .gear-button,
