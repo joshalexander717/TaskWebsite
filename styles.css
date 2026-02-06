@@ -1342,6 +1342,10 @@ body.dark .day-panel {
   border-radius: 999px;
   background: var(--track);
   font-size: 0.8rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .auth-button:hover {
