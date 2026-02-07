@@ -1014,6 +1014,9 @@ body.dark .day-panel {
 
 .tag-manager-section {
   margin-top: 24px;
+  clear: both;
+  position: relative;
+  z-index: 1;
 }
 
 .tag-panel-grid {
@@ -1460,6 +1463,17 @@ body.dark .day-panel {
 }
 
 @media (max-width: 600px) {
+  .day-meta .meta-icon i {
+    font-size: 0.5em;
+    position: relative;
+    left: 6px;
+    top: -9px;
+  }
+  .day-number {
+    font-size: 0.95rem;
+    position: relative;
+    left: -3px;
+  }
   .logo {
     height: 28px;
   }
@@ -1467,7 +1481,7 @@ body.dark .day-panel {
   .day-card {
     justify-content: flex-start;
     position: relative;
-    padding-bottom: 46px;
+    padding-bottom: 40px;
   }
 
   .day-number,
@@ -1478,7 +1492,7 @@ body.dark .day-panel {
 
   .day-meta {
     position: absolute;
-    top: 6px;
+    top: 1px;
     right: 8px;
     margin-top: 0;
     text-align: right;
@@ -1487,6 +1501,12 @@ body.dark .day-panel {
 
   .day-meta .meta-icon {
     justify-content: flex-end;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .day-meta .meta-icon i {
+    order: 2;
   }
 
   .progress-track {

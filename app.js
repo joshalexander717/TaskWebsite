@@ -52,7 +52,7 @@ const mobileQuery = window.matchMedia('(max-width: 900px)');
 
 const STORAGE_KEY = 'task-calendar-data';
 const TAGS_KEY = 'task-calendar-tags';
-const DEFAULT_TAG = 'Other';
+const DEFAULT_TAG = 'General';
 const EVENTS_VIEW = '__events__';
 const THEME_KEY = 'task-calendar-theme';
 
@@ -60,7 +60,7 @@ let viewDate = new Date();
 let selectedDate = null;
 let tasksByDate = loadLocalTasks();
 let tags = loadLocalTags();
-let selectedTagView = DEFAULT_TAG;
+let selectedTagView = EVENTS_VIEW;
 const completionState = {};
 let currentUser = null;
 let remoteStateRef = null;
@@ -68,6 +68,7 @@ let unsubscribeState = null;
 let pendingSave = null;
 let isApplyingRemote = false;
 
+migrateDefaultTag();
 syncTagsFromTasks();
 setupThemeToggle();
 setupAuth();
@@ -133,6 +134,36 @@ function saveLocalTags() {
   localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
 }
 
+function migrateDefaultTag() {
+  const legacyTag = 'Other';
+  if (legacyTag === DEFAULT_TAG) return;
+
+  let touched = false;
+  if (tags.includes(legacyTag)) {
+    tags = tags.map((tag) => (tag === legacyTag ? DEFAULT_TAG : tag));
+    touched = true;
+  }
+
+  Object.keys(tasksByDate).forEach((dateKey) => {
+    const data = getDayData(dateKey);
+    data.tasks.forEach((task) => {
+      if (task.tag === legacyTag) {
+        task.tag = DEFAULT_TAG;
+        touched = true;
+      }
+    });
+    if (touched) {
+      setDayData(dateKey, data);
+    }
+  });
+
+  if (touched) {
+    saveLocalTags();
+    saveLocalTasks();
+  }
+  return touched;
+}
+
 function setupAuth() {
   if (signInBtn) signInBtn.style.display = 'inline-flex';
   if (signOutBtn) signOutBtn.style.display = 'none';
@@ -173,6 +204,7 @@ function setupAuth() {
           isApplyingRemote = true;
           tasksByDate = data.tasksByDate || {};
           tags = ensureDefaultTag(Array.isArray(data.tags) ? data.tags : []);
+          const migrated = migrateDefaultTag();
           syncTagsFromTasks();
           renderTagOptions();
           renderTagManager();
@@ -180,10 +212,14 @@ function setupAuth() {
           renderTagView();
           selectToday();
           isApplyingRemote = false;
+          if (migrated) {
+            saveRemoteState();
+          }
         } else {
           // First-time sign-in: seed remote from current local state
           tasksByDate = loadLocalTasks();
           tags = ensureDefaultTag(loadLocalTags());
+          migrateDefaultTag();
           syncTagsFromTasks();
           saveRemoteState();
           renderTagOptions();
@@ -204,7 +240,7 @@ function setupAuth() {
       // Clear all info on sign out
       tasksByDate = {};
       tags = [DEFAULT_TAG];
-      selectedTagView = DEFAULT_TAG;
+      selectedTagView = EVENTS_VIEW;
       selectedDate = null;
       Object.keys(completionState).forEach((key) => delete completionState[key]);
       localStorage.removeItem(STORAGE_KEY);
@@ -1530,6 +1566,7 @@ function addEvent() {
   eventText.value = '';
   eventTime.value = '';
   renderEvents(dateKey, events);
+  renderTagView();
   updateDayCard(dateKey);
   renderCalendar();
 }
