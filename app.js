@@ -1070,9 +1070,6 @@ function triggerCompletionEffects(dateKey) {
       stamp.textContent = 'Done';
       card.appendChild(stamp);
     }
-    if (!isComplete && stamp) {
-      stamp.remove();
-    }
   }
 
   if (isComplete && !wasComplete) {
@@ -1124,11 +1121,11 @@ function renderCalendar(target = activeCalendar) {
     completionState[dateKey] = isComplete;
     if (isComplete) {
       card.classList.add('complete');
-      const stamp = document.createElement('div');
-      stamp.className = 'stamp';
-      stamp.textContent = 'Done';
-      card.appendChild(stamp);
     }
+    const stamp = document.createElement('div');
+    stamp.className = 'stamp';
+    stamp.textContent = 'Done';
+    card.appendChild(stamp);
     if (selectedDate && formatDateKey(selectedDate) === dateKey) {
       card.classList.add('selected');
     }
