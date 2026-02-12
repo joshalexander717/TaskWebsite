@@ -199,6 +199,7 @@ function setupAuth() {
     if (user) {
       remoteStateRef = doc(db, 'users', user.uid, 'app', 'state');
       unsubscribeState = onSnapshot(remoteStateRef, (snap) => {
+        const previousSelectedDate = selectedDate ? new Date(selectedDate.getTime()) : null;
         const data = snap.data();
         if (data && data.tasksByDate) {
           isApplyingRemote = true;
@@ -210,7 +211,6 @@ function setupAuth() {
           renderTagManager();
           renderTagViewTabs();
           renderTagView();
-          selectToday();
           isApplyingRemote = false;
           if (migrated) {
             saveRemoteState();
@@ -226,10 +226,19 @@ function setupAuth() {
           renderTagManager();
           renderTagViewTabs();
           renderTagView();
+        }
+
+        if (previousSelectedDate) {
+          viewDate = new Date(
+            previousSelectedDate.getFullYear(),
+            previousSelectedDate.getMonth(),
+            1,
+          );
+          selectDate(previousSelectedDate);
+        } else {
           selectToday();
         }
       });
-      selectToday();
     } else {
       remoteStateRef = null;
       if (pendingSave) {
@@ -500,10 +509,12 @@ function renderTagView() {
   if (!tagViewList || !tagViewLabel) return;
   tagViewLabel.textContent = selectedTagView === EVENTS_VIEW ? 'Events' : (selectedTagView || DEFAULT_TAG);
   tagViewList.innerHTML = '';
+  const todayKey = formatDateKey(new Date());
 
   if (selectedTagView === EVENTS_VIEW) {
     const eventGroups = {};
     Object.keys(tasksByDate).forEach((dateKey) => {
+      if (dateKey < todayKey) return;
       const data = getDayData(dateKey);
       if (data.events.length) {
         eventGroups[dateKey] = data.events.map((event, index) => ({ event, index }));
@@ -631,10 +642,11 @@ function renderTagView() {
 
   const groups = {};
   Object.keys(tasksByDate).forEach((dateKey) => {
+    if (dateKey < todayKey) return;
     const data = getDayData(dateKey);
     data.tasks.forEach((task, index) => {
       const tag = task.tag || DEFAULT_TAG;
-      if (tag === selectedTagView) {
+      if (tag === selectedTagView && !task.done) {
         if (!groups[dateKey]) groups[dateKey] = [];
         groups[dateKey].push({ task, index });
       }
@@ -674,6 +686,7 @@ function renderTagView() {
           updateDayCard(dateKey);
           triggerCompletionEffects(dateKey);
           syncDayCheckbox(dateKey, entry.index, entry.task.done);
+          renderTagView();
         });
 
         const text = document.createElement('span');
@@ -1067,9 +1080,11 @@ function triggerCompletionEffects(dateKey) {
     if (!stamp) {
       stamp = document.createElement('div');
       stamp.className = 'stamp';
-      stamp.textContent = 'Done';
       card.appendChild(stamp);
     }
+    stamp.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
+    stamp.setAttribute('aria-label', 'Completed');
+    stamp.setAttribute('title', 'Completed');
   }
 
   if (isComplete && !wasComplete) {
@@ -1124,7 +1139,9 @@ function renderCalendar(target = activeCalendar) {
     }
     const stamp = document.createElement('div');
     stamp.className = 'stamp';
-    stamp.textContent = 'Done';
+    stamp.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
+    stamp.setAttribute('aria-label', 'Completed');
+    stamp.setAttribute('title', 'Completed');
     card.appendChild(stamp);
     if (selectedDate && formatDateKey(selectedDate) === dateKey) {
       card.classList.add('selected');
