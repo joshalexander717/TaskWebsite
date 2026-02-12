@@ -514,7 +514,7 @@ function renderTagView() {
   if (selectedTagView === EVENTS_VIEW) {
     const eventGroups = {};
     Object.keys(tasksByDate).forEach((dateKey) => {
-      if (dateKey < todayKey) return;
+      if (dateKey <= todayKey) return;
       const data = getDayData(dateKey);
       if (data.events.length) {
         eventGroups[dateKey] = data.events.map((event, index) => ({ event, index }));
@@ -642,7 +642,6 @@ function renderTagView() {
 
   const groups = {};
   Object.keys(tasksByDate).forEach((dateKey) => {
-    if (dateKey < todayKey) return;
     const data = getDayData(dateKey);
     data.tasks.forEach((task, index) => {
       const tag = task.tag || DEFAULT_TAG;
