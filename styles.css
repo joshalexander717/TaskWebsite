@@ -743,8 +743,10 @@ body.dark .day-panel {
   flex: 1;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1px solid #e2d9cd;
+  border: 1px solid var(--input-border);
   font-family: inherit;
+  background: var(--input-bg);
+  color: var(--ink);
 }
 
 .event-input input[type="time"] {

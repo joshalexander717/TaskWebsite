@@ -201,6 +201,9 @@ function setupAuth() {
       unsubscribeState = onSnapshot(remoteStateRef, (snap) => {
         const previousSelectedDate = selectedDate ? new Date(selectedDate.getTime()) : null;
         const data = snap.data();
+        if (data && (data.theme === 'dark' || data.theme === 'light')) {
+          applyThemeMode(data.theme);
+        }
         if (data && data.tasksByDate) {
           isApplyingRemote = true;
           tasksByDate = data.tasksByDate || {};
@@ -306,9 +309,11 @@ function sanitizeForFirestore() {
   });
 
   const cleanedTags = ensureDefaultTag((tags || []).filter(Boolean));
+  const theme = document.body.classList.contains('dark') ? 'dark' : 'light';
   return {
     tasksByDate: cleanedTasksByDate,
     tags: cleanedTags,
+    theme,
     updatedAt: serverTimestamp(),
   };
 }
@@ -371,17 +376,28 @@ function setupDayPanelSheet() {
   });
 }
 
+function applyThemeMode(mode) {
+  const isDark = mode === 'dark';
+  document.body.classList.toggle('dark', isDark);
+  if (darkModeToggle) {
+    darkModeToggle.checked = isDark;
+  }
+  localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+  if (activeCalendar) {
+    renderCalendar();
+    renderTasks(false);
+  }
+}
+
 function setupThemeToggle() {
   const saved = localStorage.getItem(THEME_KEY);
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const isDark = saved ? saved === 'dark' : prefersDark;
-  document.body.classList.toggle('dark', isDark);
+  applyThemeMode(isDark ? 'dark' : 'light');
   if (darkModeToggle) {
-    darkModeToggle.checked = isDark;
     darkModeToggle.addEventListener('change', () => {
-      const nextDark = darkModeToggle.checked;
-      document.body.classList.toggle('dark', nextDark);
-      localStorage.setItem(THEME_KEY, nextDark ? 'dark' : 'light');
+      applyThemeMode(darkModeToggle.checked ? 'dark' : 'light');
+      scheduleRemoteSave();
     });
   }
 }
