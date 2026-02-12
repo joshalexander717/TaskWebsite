@@ -641,12 +641,14 @@ function renderTagView() {
   }
 
   const groups = {};
+  const selectedTagKey = String(selectedTagView || DEFAULT_TAG).trim().toLowerCase();
   Object.keys(tasksByDate).forEach((dateKey) => {
     const data = getDayData(dateKey);
     data.tasks.forEach((task, index) => {
-      const tag = task.tag || DEFAULT_TAG;
+      const tag = task?.tag || DEFAULT_TAG;
+      const tagKey = String(tag).trim().toLowerCase();
       const isDone = task.done === true;
-      if (tag === selectedTagView && !isDone) {
+      if (tagKey === selectedTagKey && !isDone) {
         if (!groups[dateKey]) groups[dateKey] = [];
         groups[dateKey].push({ task, index });
       }
