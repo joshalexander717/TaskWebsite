@@ -645,7 +645,8 @@ function renderTagView() {
     const data = getDayData(dateKey);
     data.tasks.forEach((task, index) => {
       const tag = task.tag || DEFAULT_TAG;
-      if (tag === selectedTagView && !task.done) {
+      const isDone = task.done === true;
+      if (tag === selectedTagView && !isDone) {
         if (!groups[dateKey]) groups[dateKey] = [];
         groups[dateKey].push({ task, index });
       }
@@ -669,11 +670,12 @@ function renderTagView() {
         row.className = 'tag-view-row';
 
         const check = document.createElement('button');
-        check.className = `task-check${entry.task.done ? ' checked' : ''}`;
+        const isDone = entry.task.done === true;
+        check.className = `task-check${isDone ? ' checked' : ''}`;
         check.type = 'button';
         check.dataset.dateKey = dateKey;
         check.dataset.index = String(entry.index);
-        check.setAttribute('aria-label', entry.task.done ? 'Mark incomplete' : 'Mark complete');
+        check.setAttribute('aria-label', isDone ? 'Mark incomplete' : 'Mark complete');
         check.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i>';
         check.addEventListener('click', () => {
           entry.task.done = !entry.task.done;
@@ -689,7 +691,7 @@ function renderTagView() {
         });
 
         const text = document.createElement('span');
-        text.className = `task-text${entry.task.done ? ' done' : ''}`;
+        text.className = `task-text${isDone ? ' done' : ''}`;
         text.textContent = entry.task.text;
 
         row.append(check, text);
